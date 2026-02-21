@@ -2,6 +2,8 @@ import streamlit as st
 import pickle
 import re
 
+model = pickle.load(open("spam_model.pkl", "rb"))
+vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 st.set_page_config(page_title="AI Scam Detector", page_icon="🔐", layout="centered")
 
 # Custom Styling
@@ -53,4 +55,5 @@ Developed for Cybersecurity Hackathon
 AI Model: Logistic Regression + TF-IDF  
 Accuracy: 95%
 """)
+
 
