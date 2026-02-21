@@ -22,17 +22,30 @@ st.markdown('<p class="big-title">🔐 AI-Based Job & Scholarship Scam Detector<
 st.markdown('<p class="subtitle">Protecting students from fake job offers and scholarship fraud using AI & NLP.</p>', unsafe_allow_html=True)
 st.divider()
 
-st.write("### 📊 Scam Analysis Result")
+if st.button("Analyze Message"):
 
-st.metric("Scam Probability", f"{scam_prob}%")
+    if user_input.strip() == "":
+        st.warning("Please enter a message.")
+    else:
+        test_vector = vectorizer.transform([user_input])
+        prediction = model.predict(test_vector)
+        probability = model.predict_proba(test_vector)
 
-if scam_prob > 80:
-    st.error("🚨 High Risk Scam Detected")
-elif scam_prob > 50:
-    st.warning("⚠ Moderate Risk – Be Careful")
-else:
-    st.success("✅ Low Risk – Likely Safe")
-    
+        # 👉 CALCULATE scam_prob FIRST
+        scam_prob = round(probability[0][1] * 100, 2)
+
+        # Now display result
+        st.write("### 📊 Scam Analysis Result")
+        st.metric("Scam Probability", f"{scam_prob}%")
+
+        if scam_prob > 80:
+            st.error("🚨 High Risk Scam Detected")
+        elif scam_prob > 50:
+            st.warning("⚠ Moderate Risk – Be Careful")
+        else:
+            st.success("✅ Low Risk – Likely Safe")
+            
+            
 st.divider()
 st.markdown("""
 ---
