@@ -2,58 +2,56 @@ import streamlit as st
 import pickle
 import re
 
+# Load saved model and vectorizer
 model = pickle.load(open("spam_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-st.set_page_config(page_title="AI Scam Detector", page_icon="🔐", layout="centered")
 
-# Custom Styling
-st.markdown("""
-<style>
-.big-title {
-    font-size:40px !important;
-    font-weight:700;
-}
-.subtitle {
-    font-size:18px;
-    color: gray;
-}
-</style>
-""", unsafe_allow_html=True)
+# URL detection function
+def detect_urls(text):
+    url_pattern = r'(https?://\S+|www\.\S+)'
+    return re.findall(url_pattern, text)
 
-st.markdown('<p class="big-title">🔐 AI-Based Job & Scholarship Scam Detector</p>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">Protecting students from fake job offers and scholarship fraud using AI & NLP.</p>', unsafe_allow_html=True)
-st.divider()
+# Keyword detection
+def highlight_suspicious_words(text):
+    suspicious_words = ["win", "prize", "money", "urgent", "click", "offer", "free"]
+    return [word for word in suspicious_words if word in text.lower()]
+
+# Streamlit UI
+st.title("🔐 AI-Based Job & Scholarship Scam Detector")
+
+user_input = st.text_area("Paste suspicious message here:")
 
 if st.button("Analyze Message"):
 
-    user_input = st.text_area("Paste suspicious message here:")
-    st.warning("Please enter a message.")
-else:
+    if user_input.strip() == "":
+        st.warning("Please enter a message.")
+    else:
+        # Transform text
         test_vector = vectorizer.transform([user_input])
         prediction = model.predict(test_vector)
         probability = model.predict_proba(test_vector)
 
-        # 👉 CALCULATE scam_prob FIRST
         scam_prob = round(probability[0][1] * 100, 2)
 
-        # Now display result
-        st.write("### 📊 Scam Analysis Result")
-        st.metric("Scam Probability", f"{scam_prob}%")
+        # Display probability
+        st.write(f"### Scam Probability: {scam_prob}%")
 
+        # Risk level
         if scam_prob > 80:
-            st.error("🚨 High Risk Scam Detected")
+            st.error("🚨 High Risk Scam")
         elif scam_prob > 50:
-            st.warning("⚠ Moderate Risk – Be Careful")
+            st.warning("⚠ Moderate Risk")
         else:
-            st.success("✅ Low Risk – Likely Safe")
-            
-            
-st.divider()
-st.markdown("""
----
-Developed for Cybersecurity Hackathon  
-AI Model: Logistic Regression + TF-IDF  
-Accuracy: 95%
-""")
+            st.success("✅ Low Risk")
 
+        # URL detection
+        urls = detect_urls(user_input)
+        if urls:
+            st.write("### 🔗 Suspicious URLs Found:")
+            st.write(urls)
 
+        # Keyword detection
+        suspicious = highlight_suspicious_words(user_input)
+        if suspicious:
+            st.write("### 🚩 Suspicious Keywords Detected:")
+            st.write(suspicious)
