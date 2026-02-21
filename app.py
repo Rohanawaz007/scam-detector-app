@@ -24,9 +24,9 @@ st.divider()
 
 if st.button("Analyze Message"):
 
-    if user_input.strip() == "":
-        st.warning("Please enter a message.")
-    else:
+    user_input = st.text_area("Paste suspicious message here:")
+    st.warning("Please enter a message.")
+else:
         test_vector = vectorizer.transform([user_input])
         prediction = model.predict(test_vector)
         probability = model.predict_proba(test_vector)
@@ -53,3 +53,4 @@ Developed for Cybersecurity Hackathon
 AI Model: Logistic Regression + TF-IDF  
 Accuracy: 95%
 """)
+
